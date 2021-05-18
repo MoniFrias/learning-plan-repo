@@ -19,7 +19,7 @@ class ControllerAdviceTest {
 	@Test
 	public void testNotDataFoundException() {
 		NotDataFoundException exception = new NotDataFoundException("");
-		assertEquals(HttpStatus.NOT_FOUND, controllerAdvice.notDataFoundException(exception));
+		assertEquals(HttpStatus.NOT_FOUND, controllerAdvice.notDataFoundException(exception).getStatusCode());
 	}
 
 }

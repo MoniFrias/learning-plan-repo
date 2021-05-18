@@ -62,7 +62,8 @@ public class Services {
 
 	@SuppressWarnings("unchecked")
 	private List<Subject> findListSubject(Long gradeSubject){
-		return (List<Subject>) webClient.get().uri(subjectFindGradeSubject,gradeSubject)
+		return (List<Subject>) webClient.get()
+				.uri(subjectFindGradeSubject,gradeSubject)
 				.retrieve().bodyToMono(Response.class).block().getData();
 	}
 	
