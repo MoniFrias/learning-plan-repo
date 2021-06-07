@@ -2,10 +2,13 @@ package com.example.doctor.services;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.example.doctor.entity.Doctor;
 import com.example.doctor.entity.Response;
@@ -17,20 +20,28 @@ public class Services {
 	
 	@Autowired
 	RepositoryDoc repository;
+	private Pattern pattern;
+    private Matcher matcher;
 
 	private Doctor foundDoctorByNameAndLastName(String name, String lastName) {
 		Doctor doctorFound = repository.findDoctorByNameAndLastName(name,lastName);
 		return doctorFound;
 	}
 	
-	public Response save(Doctor doctor) {
+	public Response save(Doctor doctor,BindingResult validResult) {
 		Response response = new Response();
 		Doctor doctorFound = foundDoctorByNameAndLastName(doctor.getName(), doctor.getLastName());
-		if (doctorFound == null) {
-			response.setData(repository.save(doctor));
-			return response;
+		pattern = Pattern.compile("[1-9]{8,8}");
+		matcher = pattern.matcher(Long.toString(doctor.getCedula()));
+		if(matcher.matches() && !validResult.hasErrors()) {
+			if (doctorFound == null) {
+				response.setData(repository.save(doctor));
+				return response;
+			}else {
+				throw new ValidationException("Already there is a Doctor with that name");
+			}
 		}else {
-			throw new ValidationException("Already there is a Doctor with that name");
+			throw new ValidationException("Some data is wrong");
 		}
 	}
 

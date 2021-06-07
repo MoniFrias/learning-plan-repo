@@ -2,9 +2,12 @@ package com.example.doctor.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,13 +31,13 @@ public class Controller {
 	Services services;
 	
 	@PostMapping(path = "/save")
-	public ResponseEntity<Response> save(@RequestBody Doctor doctor){
-		Response response = services.save(doctor);
+	public ResponseEntity<Response> save(@Valid @RequestBody Doctor doctor,BindingResult validResult){
+		Response response = services.save(doctor,validResult);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
 	@PostMapping(path = "/saveMass")
-	public ResponseEntity<Response> saveMass(@RequestBody List<Doctor> listDoctor){
+	public ResponseEntity<Response> saveMass(@Valid @RequestBody List<Doctor> listDoctor){
 		Response response = services.saveMass(listDoctor);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
