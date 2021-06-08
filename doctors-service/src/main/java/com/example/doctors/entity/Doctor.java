@@ -1,9 +1,12 @@
 package com.example.doctors.entity;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.validation.constraints.Pattern;
 
 import lombok.AllArgsConstructor;
@@ -32,7 +35,7 @@ public class Doctor {
 	@Pattern(regexp = "[a-zA-Z]{4,10}")
 	private String speciality;
 	
-//	@Transient
-//	List<Patient> listPatient;
+	@Transient
+	List<Patient> listPatient;
 
 }

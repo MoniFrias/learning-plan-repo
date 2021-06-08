@@ -8,10 +8,13 @@ import java.util.stream.Collectors;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.doctors.entity.Doctor;
+import com.example.doctors.entity.Patient;
 import com.example.doctors.entity.Response;
 import com.example.doctors.entity.ValidationException;
 import com.example.doctors.repository.RepositoryDoc;
@@ -22,6 +25,10 @@ public class Services {
 
 	@Autowired
 	RepositoryDoc repository;
+	@Autowired
+	WebClient webClient;
+	@Value("${patientFindByIdDoctor}")
+	private String patientFindByIdDoctor;
 	private Pattern pattern;
     private Matcher matcher;
 
@@ -67,6 +74,12 @@ public class Services {
 			throw new ValidationException("The doctors have already been saved");
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Patient> patientFindByIdDoctor(Long id){
+		return (List<Patient>) webClient.get().uri(patientFindByIdDoctor,id)
+				.retrieve().bodyToMono(Response.class).block().getData();
+	}
 
 	public Response findAll() {
 		Response response = new Response();
@@ -84,8 +97,15 @@ public class Services {
 		if (id != null && id > 0) {
 			Doctor doctor = repository.findDoctorById(id);
 			if(doctor != null) {
-				response.setData(doctor);
-				return response;
+//				List<Patient> listPatient= patientFindByIdDoctor(doctor.getId());
+//				if(!listPatient.isEmpty()) {
+//					doctor.setListPatient(listPatient);
+					response.setData(doctor);
+					return response;	
+//				}else {
+//					response.setData(doctor);
+//					return response;
+//				}
 			}else {
 				throw new ValidationException("No saved doctors with that ID");
 			}
