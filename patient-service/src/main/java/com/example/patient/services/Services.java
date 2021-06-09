@@ -99,7 +99,9 @@ public class Services {
 				response.setData(listPatient);
 				return response;
 			}else {
-				throw new ValidationException("No saved Patients with that ID");
+				response.setResult(false);
+				response.setMessage("Fail");
+				return response;
 			}
 		}else {
 			throw new ValidationException("can't be null or zero");

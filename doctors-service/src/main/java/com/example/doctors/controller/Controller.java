@@ -37,8 +37,8 @@ public class Controller {
 	}
 	
 	@PostMapping(path = "/saveMass")
-	public ResponseEntity<Response> saveMass(@RequestBody List<Doctor> listDoctor){
-		Response response = services.saveMass(listDoctor);
+	public ResponseEntity<Response> saveMass(@RequestBody List<Doctor> listDoctor,BindingResult validResult){
+		Response response = services.saveMass(listDoctor,validResult);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	

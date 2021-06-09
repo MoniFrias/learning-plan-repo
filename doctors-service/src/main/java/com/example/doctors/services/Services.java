@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -37,6 +38,7 @@ public class Services {
 		return doctorFound;
 	}
 	
+	
 	public Response save(Doctor doctor,BindingResult validResult) {
 		Response response = new Response();
 		Doctor doctorFound = foundDoctorByNameAndLastName(doctor.getName(), doctor.getLastName());
@@ -54,12 +56,12 @@ public class Services {
 		}
 	}
 
-	public Response saveMass(List<Doctor> listDoctor) {
+	public Response saveMass(List<Doctor> listDoctor, BindingResult validResult) {
 		Response response = new Response();
 		List<Doctor> listDoctorNew = listDoctor.stream().map(doctor ->{
 			Doctor doct=null;
 			Doctor doctorFound= foundDoctorByNameAndLastName(doctor.getName(), doctor.getLastName());
-			if(doctorFound == null) {
+			if(doctorFound == null ) {
 				doct = repository.save(doctor);
 			}else {
 				System.out.println("Ya existe");
@@ -77,16 +79,30 @@ public class Services {
 	
 	@SuppressWarnings("unchecked")
 	private List<Patient> patientFindByIdDoctor(Long id){
-		return (List<Patient>) webClient.get().uri(patientFindByIdDoctor,id)
+		return (List<Patient>) webClient.get().uri(patientFindByIdDoctor+id)
 				.retrieve().bodyToMono(Response.class).block().getData();
 	}
 
 	public Response findAll() {
-		Response response = new Response();
+		Response response = new Response();		
 		List<Doctor> listDoctors = repository.findAll();
 		if(!listDoctors.isEmpty()) {
-			response.setData(listDoctors);
-			return response;
+			List<Doctor> listDoctorNew = listDoctors.stream().map(doctor ->{
+				List<Patient> listPatient = patientFindByIdDoctor(doctor.getId());
+				if (listPatient != null && !listPatient.isEmpty()) {
+					doctor.setListPatient(listPatient);					
+				}else {
+					doctor.setListPatient(null);					
+				}
+				return doctor;
+			}).filter(Objects::nonNull).collect(Collectors.toList());
+			
+			if (!listDoctorNew.isEmpty()) {
+				response.setData(listDoctorNew);
+				return response;
+			}else {
+				throw new ValidationException("No saved doctors empty");
+			}
 		}else {
 			throw new ValidationException("No saved doctors");
 		}
@@ -96,20 +112,20 @@ public class Services {
 		Response response = new Response();
 		if (id != null && id > 0) {
 			Doctor doctor = repository.findDoctorById(id);
-			if(doctor != null) {
-//				List<Patient> listPatient= patientFindByIdDoctor(doctor.getId());
-//				if(!listPatient.isEmpty()) {
-//					doctor.setListPatient(listPatient);
+			if (doctor != null) {
+				List<Patient> listPatient = patientFindByIdDoctor(doctor.getId());
+				if (listPatient != null && !listPatient.isEmpty()) {
+					doctor.setListPatient(listPatient);
 					response.setData(doctor);
-					return response;	
-//				}else {
-//					response.setData(doctor);
-//					return response;
-//				}
-			}else {
+					return response;
+				}else {
+					response.setData(doctor);
+					return response;				
+				}
+			} else {
 				throw new ValidationException("No saved doctors with that ID");
 			}
-		}else {
+		} else {
 			throw new ValidationException("ID can't be null or zero");
 		}
 	}
@@ -118,8 +134,15 @@ public class Services {
 		Response response = new Response();
 		Doctor doctorFound= foundDoctorByNameAndLastName(name, lastname);
 		if(doctorFound != null) {
-			response.setData(doctorFound);
-			return response;
+			List<Patient> listPatient = patientFindByIdDoctor(doctorFound.getId());
+			if (listPatient != null && !listPatient.isEmpty()) {
+				doctorFound.setListPatient(listPatient);
+				response.setData(doctorFound);
+				return response;
+			}else {
+				response.setData(doctorFound);
+				return response;				
+			}
 		}else {
 			throw new ValidationException("No saved doctors with that Name");
 		}
@@ -129,8 +152,15 @@ public class Services {
 		Response response = new Response();
 		Doctor doctorFound = repository.findDoctorByCedula(cedula);
 		if(doctorFound != null) {
-			response.setData(doctorFound);
-			return response;
+			List<Patient> listPatient = patientFindByIdDoctor(doctorFound.getId());
+			if (listPatient != null && !listPatient.isEmpty()) {
+				doctorFound.setListPatient(listPatient);
+				response.setData(doctorFound);
+				return response;
+			}else {
+				response.setData(doctorFound);
+				return response;				
+			}
 		}else {
 			throw new ValidationException("No saved doctors with that Cedula");
 		}
