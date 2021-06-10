@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class Patient {
 
 	private Long nss; 
+	private Long medicalHistory; 
 	private String name;
 	private String lastName;
 	private Long age;

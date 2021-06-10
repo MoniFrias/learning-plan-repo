@@ -23,6 +23,8 @@ public class Patient {
 	private Long id;
 	@Column(name = "nss")
 	private Long nss; 
+	@Column(name = "medicalHistory")
+	private Long medicalHistory; 
 	@Column(name = "name")
 	@Pattern(regexp = "[a-zA-Z]{4,10}")
 	private String name;

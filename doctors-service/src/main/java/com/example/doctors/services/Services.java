@@ -36,8 +36,7 @@ public class Services {
 	private Doctor foundDoctorByNameAndLastName(String name, String lastName) {
 		Doctor doctorFound = repository.findDoctorByNameAndLastName(name,lastName);
 		return doctorFound;
-	}
-	
+	}	
 	
 	public Response save(Doctor doctor,BindingResult validResult) {
 		Response response = new Response();

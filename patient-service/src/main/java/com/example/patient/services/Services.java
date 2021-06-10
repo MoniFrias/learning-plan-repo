@@ -21,7 +21,7 @@ public class Services {
 	@Autowired
 	RepositoryPatient repository;
 	private Pattern pattern;
-	private Matcher matcher;
+	private Matcher matcherCedula , matcherHistory;
 	
 	private Patient foundPatientByNameAndLastName(String name, String lastName) {
 		Patient patientFound = repository.findPatientByNameAndLastName(name,lastName);
@@ -32,8 +32,9 @@ public class Services {
 		Response response = new Response();
 		Patient patientFound = foundPatientByNameAndLastName(patient.getName(), patient.getLastName());
 		pattern = Pattern.compile("[1-9]{8,8}");
-		matcher = pattern.matcher(Long.toString(patient.getNss()));
-		if(matcher.matches() && !validationResult.hasErrors()) {
+		matcherCedula = pattern.matcher(Long.toString(patient.getNss()));
+		matcherHistory = pattern.matcher(Long.toString(patient.getMedicalHistory()));
+		if(matcherCedula.matches() && matcherHistory.matches() && !validationResult.hasErrors()) {
 			if (patientFound == null) {
 				response.setData(repository.save(patient));
 				return response;
@@ -114,6 +115,7 @@ public class Services {
 			Patient patientFound = repository.findPatientById(id);
 			if(patientFound != null) {
 				patientFound.setNss(patient.getNss());
+				patientFound.setMedicalHistory(patient.getMedicalHistory());
 				patientFound.setName(patient.getName());
 				patientFound.setLastName(patient.getLastName());
 				patientFound.setAge(patient.getAge());
