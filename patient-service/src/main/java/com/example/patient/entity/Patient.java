@@ -1,6 +1,7 @@
 package com.example.patient.entity;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,8 +24,6 @@ public class Patient {
 	private Long id;
 	@Column(name = "nss")
 	private Long nss; 
-	@Column(name = "medicalHistory")
-	private Long medicalHistory; 
 	@Column(name = "name")
 	@Pattern(regexp = "[a-zA-Z]{4,10}")
 	private String name;
@@ -37,8 +36,9 @@ public class Patient {
 	private LocalDate dayOfBirth;
 	@Column(name = "idDoctor")
 	private Long idDoctor;
+	@Column(name = "appointment")
+	private LocalTime appointmentTime;
+	@Column(name = "appointmentDate")
+	private LocalDate appointmentDate;
 	
-	
-	
-
 }

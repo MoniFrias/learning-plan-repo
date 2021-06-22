@@ -43,6 +43,7 @@ public class Services {
 		Doctor doctorFound = foundDoctorByNameAndLastName(doctor.getName(), doctor.getLastName());
 		pattern = Pattern.compile("[1-9]{8,8}");
 		matcher = pattern.matcher(Long.toString(doctor.getCedula()));
+		System.out.println(validResult);
 		if(matcher.matches() && !validResult.hasErrors()) {
 			if (doctorFound == null) {
 				response.setData(repository.save(doctor));
@@ -78,8 +79,12 @@ public class Services {
 	
 	@SuppressWarnings("unchecked")
 	private List<Patient> patientFindByIdDoctor(Long id){
-		return (List<Patient>) webClient.get().uri(patientFindByIdDoctor+id)
-				.retrieve().bodyToMono(Response.class).block().getData();
+		return (List<Patient>) webClient.get()
+				.uri(patientFindByIdDoctor+id)
+				.retrieve()
+				.bodyToMono(Response.class)
+				.block()
+				.getData();
 	}
 
 	public Response findAll() {

@@ -1,5 +1,7 @@
 package com.example.patient.services;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -20,21 +22,35 @@ public class Services {
 
 	@Autowired
 	RepositoryPatient repository;
-	private Pattern pattern;
-	private Matcher matcherCedula , matcherHistory;
+	private Pattern patternCedula, patternTime, patternDate;
+	private Matcher matcherCedula , matcherTime, matcherDate, matcherDateBirth;
 	
 	private Patient foundPatientByNameAndLastName(String name, String lastName) {
 		Patient patientFound = repository.findPatientByNameAndLastName(name,lastName);
 		return patientFound;
 	}
 	
+	private boolean validation(Long Nss, LocalTime time, LocalDate date, LocalDate dateBirth) {
+		patternCedula = Pattern.compile("[1-9]{8,8}");
+		matcherCedula = patternCedula.matcher(Long.toString(Nss));
+		patternTime = Pattern.compile("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$");
+		matcherTime = patternTime.matcher(time.toString());
+		patternDate = Pattern.compile("^(((19|2[0-9])[0-9]{2})-(0[13578]|10|12)-(0[1-9]|[12][0-9]|3[01]))$"  + 
+				                      "|^(((19|2[0-9])[0-9]{2})-(0[469]|11)-(0[1-9]|[12][0-9]|30))$");
+		matcherDate = patternDate.matcher(date.toString());
+		matcherDateBirth = patternDate.matcher(dateBirth.toString());
+		if(matcherCedula.matches() && matcherTime.matches() && matcherDate.matches() && matcherDateBirth.matches()) {
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
 	public Response save(Patient patient,BindingResult validationResult) {
 		Response response = new Response();
 		Patient patientFound = foundPatientByNameAndLastName(patient.getName(), patient.getLastName());
-		pattern = Pattern.compile("[1-9]{8,8}");
-		matcherCedula = pattern.matcher(Long.toString(patient.getNss()));
-		matcherHistory = pattern.matcher(Long.toString(patient.getMedicalHistory()));
-		if(matcherCedula.matches() && matcherHistory.matches() && !validationResult.hasErrors()) {
+		boolean validate = validation(patient.getNss(), patient.getAppointmentTime(), patient.getAppointmentDate(), patient.getDayOfBirth());
+		if(validate && !validationResult.hasErrors()) {
 			if (patientFound == null) {
 				response.setData(repository.save(patient));
 				return response;
@@ -108,20 +124,26 @@ public class Services {
 			throw new ValidationException("can't be null or zero");
 		}	
 	}
+	
+	private Patient updatePatient(Patient patientGot, Patient patientFound) {
+		patientFound.setNss(patientGot.getNss());
+		patientFound.setName(patientGot.getName());
+		patientFound.setLastName(patientGot.getLastName());
+		patientFound.setAge(patientGot.getAge());
+		patientFound.setDayOfBirth(patientGot.getDayOfBirth());
+		patientFound.setIdDoctor(patientGot.getIdDoctor());
+		patientFound.setAppointmentTime(patientGot.getAppointmentTime());
+		patientFound.setAppointmentDate(patientGot.getAppointmentDate());
+		return patientFound;
+	}
 
 	public Response update(Patient patient, Long id) {
 		Response response = new Response();
 		if(id != null && id > 0) {
 			Patient patientFound = repository.findPatientById(id);
 			if(patientFound != null) {
-				patientFound.setNss(patient.getNss());
-				patientFound.setMedicalHistory(patient.getMedicalHistory());
-				patientFound.setName(patient.getName());
-				patientFound.setLastName(patient.getLastName());
-				patientFound.setAge(patient.getAge());
-				patientFound.setDayOfBirth(patient.getDayOfBirth());
-				patientFound.setIdDoctor(patient.getIdDoctor());
-				response.setData(repository.save(patientFound));
+				Patient patientNew = updatePatient(patient, patientFound);
+				response.setData(repository.save(patientNew));
 				return response;
 			}else {
 				throw new ValidationException("No saved Patients with that ID");

@@ -45,25 +45,25 @@ public class Controller {
 	@GetMapping(path = "/findAll")
 	public ResponseEntity<Response> findAll(){
 		Response response = services.findAll();
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		return new ResponseEntity<>(response,HttpStatus.FOUND);
 	}
 	
 	@GetMapping(path = "/findById")
 	public ResponseEntity<Response> findById(@RequestParam(name = "id") Long id){
 		Response response = services.findById(id);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		return new ResponseEntity<>(response,HttpStatus.FOUND);
 	}
 	
 	@GetMapping(path = "/findByNameAndLastName")
 	public ResponseEntity<Response> findByNameAndLastName(@RequestParam(name = "name") String name,@RequestParam(name = "lastname") String lastname ){
 		Response response = services.findByNameAndLastName(name,lastname);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		return new ResponseEntity<>(response,HttpStatus.FOUND);
 	}
 	
 	@GetMapping(path = "/findByCedula")
 	public ResponseEntity<Response> findByCedula(@RequestHeader(name = "cedula") Long cedula){
 		Response response = services.findByCedula(cedula);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		return new ResponseEntity<>(response,HttpStatus.FOUND);
 	}
 	
 	@PutMapping(path = "/update/{id}")
